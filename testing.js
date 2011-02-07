@@ -1,42 +1,42 @@
-// closure to protect global scope
-// call with no argument to pollute or pass an object to export into it
+// Closure to protect global scope
+// Call with no argument to pollute or pass an object to export into it
 this['git://github.com/oatkiller/testingjs.git'] = function (exportObj) {
-	// define some utility functions
+	// Define some utility functions
 
-	// call fn, in scope, once for each element or property in obj, passing property, propertyName, and obj
+	// Call fn, in scope, once for each element or property in obj, passing property, propertyName, and obj
 	var map = function (obj,fn,scope) {
-		// create an array to store the results
+		// Create an array to store the results
 		var map = [];
 
-		// if the obj that we are iterating is an array
+		// If the obj that we are iterating is an array
 		if (obj instanceof Array) {
-			// loop over its numeric indicies
+			// Loop over its numeric indicies
 			for (var i = 0; i < obj.length; i++) {
-				// store the result of calling the fn
+				// Store the result of calling the fn
 				map.push(fn.call(scope,obj[i],i,obj));
 			}
 		} else {
-			// loop of its named properties
+			// Loop of its named properties
 			for (var propertyName in obj) {
-				// only if the are on the object itself
+				// Only if the are on the object itself
 				if (obj.hasOwnProperty(propertyName)) {
-					// store the result of calling the fn
+					// Store the result of calling the fn
 					map.push(fn.call(scope,obj[propertyName],propertyName,obj));
 				}
 			}
 		}
 
-		// return the map
+		// Return the map
 		return map;
 	};
 
-	// if addDefaultListener is not false, a default listener will be added that logs test results to console.log
+	// If addDefaultListener is not false, a default listener will be added that logs test results to console.log
 	var Runner = function (addDefaultListener) {
 		this.listeners = [];
-		// add the default listener, unless explicitly told not to
+		// Add the default listener, unless explicitly told not to
 		addDefaultListener !== false && this.addListener(function (messageType,payload) {
 			if (messageType !== 'report') {
-				console.log(messageType,':',payload.should,payload.e ? payload.e : '');
+				console.log(messageType,':',payload.assertionText,payload.error ? payload.error : '');
 			} else {
 				console.log(messageType,': success: ',payload.successCount,' failure: ',payload.failureCount);
 			}
@@ -47,27 +47,27 @@ this['git://github.com/oatkiller/testingjs.git'] = function (exportObj) {
 		constructor : Runner,
 		successCount : 0,
 		failureCount : 0,
-		log : function (result,test,e) {
-			// increment the successes or failures count
+		log : function (result,test,error) {
+			// Increment the successes or failures count
 			result === 'success' ? this.successCount++ : this.failureCount++;
 
-			// call the listeners
+			// Call the listeners
 			map(this.listeners,function (listener) {
-				listener.fn.call(listener.scope,result,{fn : test.fn, should : test.should, e : e});
+				listener.handler.call(listener.scope,result,{testFn : test.testFn, assertionText : test.assertionText, error : error});
 			},this);
 		},
-		// add a new listener
-		addListener : function (fn,scope) {
+		// Add a new listener
+		addListener : function (handler,scope) {
 			this.listeners.push({
-				fn : fn,
+				handler : handler,
 				scope : scope
 			});
 		},
-		// a function that logs a report
+		// A function that logs a report
 		report : function () {
-			// call the listeners
+			// Call the listeners
 			map(this.listeners,function (listener) {
-				listener.fn.call(listener.scope,'report',{
+				listener.handler.call(listener.scope,'report',{
 					successCount : this.successCount,
 					failureCount : this.failureCount
 				});
@@ -82,17 +82,15 @@ this['git://github.com/oatkiller/testingjs.git'] = function (exportObj) {
 		}
 	}
 
-	var Test = function (config) {
-		map(config,function (fn,should) {
-			this.fn = fn;
-			this.should = should;
-		},this);
+	var Test = function (assertionText,testFn) {
+		this.testFn = testFn;
+		this.assertionText = assertionText;
 	};
 
 	Test.prototype = {
 		constructor : Test,
 		run : function (scope) {
-			this.fn.call(scope);
+			this.testFn.call(scope);
 		}
 	};
 
@@ -100,17 +98,17 @@ this['git://github.com/oatkiller/testingjs.git'] = function (exportObj) {
 		// Create a tests array to hold tests that belong to this suite
 		this.tests = [];
 
-		// save a reference to the runner
+		// Save a reference to the runner
 		this.runner = config.runner;
 		this.setUp = config.setUp;
 		this.tearDown = config.tearDown;
 
-		// delete the non-test properties from the config
+		// Delete the non-test properties from the config
 		delete config.runner;
 		delete config.setUp;
 		delete config.tearDown;
 
-		// add the rest of the config as tests
+		// Add the rest of the config as tests
 		this.addTests(config);
 	};
 
@@ -119,36 +117,30 @@ this['git://github.com/oatkiller/testingjs.git'] = function (exportObj) {
 		constructor : Suite,
 		addTests : function (config) {
 			map(config,function (property,propertyName) {
-				// define a new test config
-				var testConfig = {};
-
-				// set the test at the name
-				testConfig[propertyName] = config[propertyName];
-
-				// create and add the test
-				this.tests.push(new Test(testConfig));
+				// create and add each Test
+				this.tests.push(new Test(propertyName,config[propertyName]));
 			},this);
 		},
-		// a method that runs all a Suite's tests
+		// A method that runs all a Suite's tests
 		run : function () {
-			// loop over all of the numeric indicies of this.tests
+			// Loop over all of the numeric indicies of this.tests
 
 			map(this.tests,function (test) {
-				// run the setup
+				// Run the setup
 				this.setUp && this.setUp.call(this);
 				
-				// call test in this scope
+				// Call test in this scope
 				try {
-					// run the test, passing this as a scope
+					// Run the test, passing this as a scope
 					test.run(this);
 
-					// log the success
+					// Log the success
 					this.runner.log('success',test);
-				} catch (e) {
-					// log the failure
-					this.runner.log('failure',test,e);
+				} catch (error) {
+					// Log the failure
+					this.runner.log('failure',test,error);
 				} finally {
-					// run the teardown
+					// Run the teardown
 					this.tearDown && this.tearDown.call(this);
 				}
 			},this);
@@ -157,14 +149,14 @@ this['git://github.com/oatkiller/testingjs.git'] = function (exportObj) {
 		}
 	};
 
-	// if an export obj was provided, use that
+	// If an export obj was provided, use that
 	if (exportObj) {
 		exportObj.Test = Test;
 		exportObj.Suite = Suite;
 		exportObj.Runner = Runner;
 		exportObj.Assert = Assert;
 	} else {
-		// otherwise, export these to the global namespace
+		// Otherwise, export these to the global namespace
 		this.Test = Test;
 		this.Suite = Suite;
 		this.Runner = Runner;
