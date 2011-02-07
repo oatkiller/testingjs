@@ -30,29 +30,6 @@ this['git://github.com/oatkiller/testingjs.git'] = function (exportObj) {
 		return map;
 	};
 
-	// return an object that inherits from prototype and has the properties in properties
-	var createObject = function (prototype,properties) {
-		// create an anonymous constructor
-		var Constructor = function () {};
-
-		// set its prototype to the passed prototype
-		Constructor.prototype = prototype;
-
-		// set the prototype's constructor property
-		prototype.constructor = Constructor;
-
-		// create a new object
-		var obj = new Constructor();
-
-		// loop over each property in properties, and assign these to the new object
-		map(properties,function (property,propertyName) {
-			this[propertyName] = property;
-		},obj);
-
-		// return newly created object
-		return obj;
-	};
-
 	// if addDefaultListener is not false, a default listener will be added that logs test results to console.log
 	var Runner = function (addDefaultListener) {
 		this.listeners = [];
@@ -76,7 +53,7 @@ this['git://github.com/oatkiller/testingjs.git'] = function (exportObj) {
 
 			// call the listeners
 			map(this.listeners,function (listener) {
-				listener.fn.call(listener.scope,result,createObject(test,{e : e}));
+				listener.fn.call(listener.scope,result,{fn : test.fn, should : test.should, e : e});
 			},this);
 		},
 		// add a new listener
@@ -138,7 +115,8 @@ this['git://github.com/oatkiller/testingjs.git'] = function (exportObj) {
 	};
 
 	// Suite inherits from test
-	Suite.prototype = createObject(Test.prototype,{
+	Suite.prototype = {
+		constructor : Suite,
 		addTests : function (config) {
 			map(config,function (property,propertyName) {
 				// define a new test config
@@ -177,7 +155,7 @@ this['git://github.com/oatkiller/testingjs.git'] = function (exportObj) {
 
 			this.runner.report();
 		}
-	});
+	};
 
 	// if an export obj was provided, use that
 	if (exportObj) {

@@ -1,9 +1,12 @@
-test.html  and tests.js form an example and litmus of the library
-testing.js is the test library itself
+h1. Description
 
-create a runner.
-add listeners to the runner (or don't, and a default one that uses console.log will be added for you)
-add a suite, pass the runner to it
-add tests to the suite (either in the config or with addTests)
+Testing.js is a very simple testing framework that has no external dependencies. It is very lightweight. It can run in browser or non-browser JavaScript environments. Use it to test your JavaScript code.
 
-see tests.js for example
+h1. Structure
+
+Testing.js has several classes:
+
+# *Runner*: logs test failures and successes with its registered listeners
+# *Suite*: Organizes related tests, runs setUp and tearDown functions before and after each test run, and reports to a Runner
+# *Test*: consists of a message and a test. Calls Asserts to test your code
+# *Assert*: Throw failure errors when code doesn't work as expected. These errors are caught and passed to the Runner, which logs them
