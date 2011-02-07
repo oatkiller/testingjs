@@ -32,4 +32,53 @@ var testExport = function () {
 	suite.run();
 };
 
-testExport();
+var testSetupAndTearDown = function () {
+	// In this example, I'll test the methods of a class
+
+	// A Widget class that has children
+	var Widget = function () {
+		this.children = [];
+	};
+
+	// a hasChildren method that will return true if the widget has children
+	Widget.prototype.hasChildren = function () {
+		return this.children.length > 0;
+	};
+
+	this['git://github.com/oatkiller/testingjs.git']();
+
+	var runner = new Runner();
+
+	var suite = new Suite({
+		runner : runner,
+
+		// define the optional setUp method
+		// this will be run before each test
+		setUp : function () {
+			// we will use a new widget for each test
+			this.widget = new Widget();
+		},
+
+		// define the optional tearDown method
+		// this will be run after each test
+		tearDown : function () {
+			// destroy the widget that we just used
+			delete this.widget;
+		},
+		'hasChildren should return true if a widget has 1 child' : function () {
+
+			// add a child
+			this.widget.children.push({});
+
+			// test the method
+			Assert(this.widget.hasChildren() === true,'hasChildren did not return true when widget had 1 child');
+		},
+		'hasChildren should return false if a widget has 0 children' : function () {
+			// test the method
+			Assert(this.widget.hasChildren() === false,'hasChildren returned true when widget had 0 children');
+		}
+	});
+	suite.run();
+};
+
+testSetupAndTearDown();

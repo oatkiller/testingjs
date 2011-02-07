@@ -28,20 +28,73 @@ var runner = new Runner();
 var suite = new Suite({
 	runner : runner,
 	'1+1 should not equal 3' : function () {
-		// use the Assert function, pass it true when a test has passed, or false otherwise. The second param is a message to send when a failure happens
+		// Use the Assert function, pass it true when a test has passed, or false otherwise. The second param is a message to send when a failure happens
 		Assert(1+1!==3,'they did equal 3');
 	},
-	// this should fail
+	// This should fail
 	'1+1 should equal 3' : function () {
 		// 'they didnt equal 3' will be reported as the reason this test has failed
 		Assert(1+1===3,'they didnt equal 3');
 	}
 });
 
-//  call run() on a suite to run all of its tests
+// Call run() on a suite to run all of its tests
 suite.run();
 
-h1. Using Export to Keep Testingjs Namespaced
+h1. Using the Optional setUp and tearDown methods
+
+If passed to a Suite, the optional setUp method will run before each test is run. If the optional tearDown method is passed, it will be run after each test is run. The setUp method, tearDown method, and each test, will be run in the scope of their Suite. Since setUp, tearDown and your tests are all run in the same scope, they can assign properties to the Suite in order to pass a payload between each other.
+
+h2. Example
+
+// In this example, I'll test the methods of a class
+
+// A Widget class that has children
+var Widget = function () {
+	this.children = [];
+};
+
+// A hasChildren method that will return true if the widget has children
+Widget.prototype.hasChildren = function () {
+	return this.children.length > 0;
+};
+
+this['git://github.com/oatkiller/testingjs.git']();
+
+var runner = new Runner();
+
+var suite = new Suite({
+	runner : runner,
+
+	// Define the optional setUp method
+	// This will be run before each test
+	setUp : function () {
+		// We will use a new widget for each test
+		this.widget = new Widget();
+	},
+
+	// Define the optional tearDown method
+	// This will be run after each test
+	tearDown : function () {
+		// Destroy the widget that we just used
+		delete this.widget;
+	},
+	'hasChildren should return true if a widget has 1 child' : function () {
+
+		// Add a child
+		this.widget.children.push({});
+
+		// Test the method
+		Assert(this.widget.hasChildren() === true,'hasChildren did not return true when widget had 1 child');
+	},
+	'hasChildren should return false if a widget has 0 children' : function () {
+		// Test the method
+		Assert(this.widget.hasChildren() === false,'hasChildren returned true when widget had 0 children');
+	}
+});
+suite.run();
+
+h1. Using Export to Keep Testing.js Namespaced
 
 In order to prevent identifier collisons, Testing.js is stored in a fully qualified location. If you'd like to pollute your global namespace with Testing.js, just run the setup function without passing any parameters. If you'd rather namespace Testing.js, just pass the setup function a namespace object.
 
@@ -66,7 +119,7 @@ var suite = new testing.Suite({
 		// Assert is also now stored on the namespace
 		testing.Assert(1+1!==3,'they did equal 3');
 	},
-	// this should fail
+	// This should fail
 	'1+1 should equal 3' : function () {
 		testing.Assert(1+1===3,'they didnt equal 3');
 	}
