@@ -1,0 +1,9 @@
+test.html  and tests.js form an example and litmus of the library
+testing.js is the test library itself
+
+create a runner.
+add listeners to the runner (or don't, and a default one that uses console.log will be added for you)
+add a suite, pass the runner to it
+add tests to the suite (either in the config or with addTests)
+
+see tests.js for example
