@@ -47,7 +47,7 @@ If passed to a Suite, the optional setUp method will run before each test is run
 
 h2. Example
 
-// In this example, I'll test the methods of a class
+pre.. // In this example, I'll test the methods of a class
 
 // A Widget class that has children
 var Widget = function () {
