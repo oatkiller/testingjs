@@ -27,12 +27,6 @@ var runner = new Runner();
 // A Suite config may specify any number of tests. The assertion should be in the property name, and the test is the function, like this:
 var suite = new Suite({
 	runner : runner,
-	setUp : function () {
-		// optional setUp functions are run in the scope of the Suite, before each test is run. Tests are run in this same scope, so they can access properties of the Suite
-	},
-	tearDown : function () {
-		// optional tearDown function is run after each test
-	},
 	'1+1 should not equal 3' : function () {
 		// use the Assert function, pass it true when a test has passed, or false otherwise. The second param is a message to send when a failure happens
 		Assert(1+1!==3,'they did equal 3');
@@ -45,4 +39,36 @@ var suite = new Suite({
 });
 
 //  call run() on a suite to run all of its tests
+suite.run();
+
+h1. Using Export to Keep Testingjs Namespaced
+
+In order to prevent identifier collisons, Testing.js is stored in a fully qualified location. If you'd like to pollute your global namespace with Testing.js, just run the setup function without passing any parameters. If you'd rather namespace Testing.js, just pass the setup function a namespace object.
+
+h2. Example
+
+pre.. // Create an object to be a namespace
+var testing = {};
+
+// Pass that object when you call the setup function
+this['git://github.com/oatkiller/testingjs.git'](testing);
+
+// Now the classes in Testing are stored on your namespace object
+
+// Access the Runner class at testing.Runner
+var runner = new testing.Runner();
+
+// Access the Suite class at testing.Suite
+// If the namespace object was stored at ns, you'd use ns.Suite
+var suite = new testing.Suite({
+	runner : runner,
+	'1+1 should not equal 3' : function () {
+		// Assert is also now stored on the namespace
+		testing.Assert(1+1!==3,'they did equal 3');
+	},
+	// this should fail
+	'1+1 should equal 3' : function () {
+		testing.Assert(1+1===3,'they didnt equal 3');
+	}
+});
 suite.run();
