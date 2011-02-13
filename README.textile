@@ -135,7 +135,7 @@ h2. this['git://github.com/oatkiller/testingjs.git']
 *Params*
 
 |Param|Type|Optional?|Desc.|
-|exportObj|Object|Optional|If passed, export the public classes into exportObj. If not passed, public classes will be exported into the global 
+|exportObj|Object|Optional|If passed, export the public classes into exportObj. If not passed, public classes will be exported into the global| 
 
 h2. Runner
 
@@ -243,8 +243,8 @@ The Test class can be created directly, or by passing a test config to your Suit
 *Properties*
 
 |Property|Type|?|Desc.|
-|assertionText|String|The assertion that you are making with this test|
-|testFn|Function|The test function|
+|assertionText|String||The assertion that you are making with this test|
+|testFn|Function||The test function|
 
 h3. Usage Example
 
