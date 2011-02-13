@@ -242,7 +242,7 @@ The Test class can be created directly, or by passing a test config to your Suit
 
 *Properties*
 
-|Property|Type|?|Desc.|
+|Property|Type|Optional?|Desc.|
 |assertionText|String||The assertion that you are making with this test|
 |testFn|Function||The test function|
 
