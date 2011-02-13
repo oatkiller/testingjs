@@ -133,6 +133,7 @@ The setup function is located on the global object (window, if run in a web brow
 h2. this['git://github.com/oatkiller/testingjs.git']
 
 *Params*
+
 |Param|Type|Optional?|Desc.|
 |exportObj|Object|Optional|If passed, export the public classes into exportObj. If not passed, public classes will be exported into the global 
 
@@ -141,10 +142,12 @@ h2. Runner
 The Runner class has listeners. Suite's keep a reference to a runner. A runner instance is required to use testing.js
 
 *Constructor*
+
 |Param|Type|Optional?|Desc.|
 |addDefaultListener|Boolean|Optional|If false, the default listener that writes to console.log will not be added. Otherwise, the default listener will be added|
 
 *Properties*
+
 |Property|Type|Desc.|
 |listeners|Array|Holds a reference to each listener added to a Runner instance|
 |successCount|Number|The number of tests that have been run with success|
@@ -185,15 +188,18 @@ h5. payload
 The handler accepts a payload with different properties depending on which type of message.
 
 *success*
+
 |testFn|Test fn that ran successfully|
 |assertionText|The assertion the test makes|
 
 *failure*
+
 |testFn|Test fn that ran successfully|
 |assertionText|The assertion the test makes|
 |error|The error that the failing Assert threw|
 
 *report*
+
 |successCount|The number of successful tests|
 |failureCount|The number of failed tests|
 
@@ -229,11 +235,13 @@ h2. Test
 The Test class can be created directly, or by passing a test config to your Suite
 
 *Constructor*
+
 |Param|Type|Optional?|Desc.|
 |assertionText|String|Required|The assertion that you are making with this test|
 |testFn|Function|Required|The test function|
 
 *Properties*
+
 |Property|Type|?|Desc.|
 |assertionText|String|The assertion that you are making with this test|
 |testFn|Function|The test function|
