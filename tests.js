@@ -81,4 +81,23 @@ var testSetupAndTearDown = function () {
 	suite.run();
 };
 
-testSetupAndTearDown();
+//testSetupAndTearDown();
+
+var testWait = function () {
+	this['git://github.com/oatkiller/testingjs.git']();
+
+	var runner = new Runner();
+
+	var suite = new Suite({
+		runner : runner,
+
+		'wait should assert false after default time if nothing happens' : function () {
+			Wait(setTimeout(function () {
+				Resume();
+			},100),110);
+		}
+	});
+	suite.run();
+};
+
+testWait();

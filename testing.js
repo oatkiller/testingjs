@@ -30,6 +30,17 @@ this['git://github.com/oatkiller/testingjs.git'] = function (exportObj) {
 		return map;
 	};
 
+	var asyncIterate = function (array,fn,scope,finished,finishedScope) {
+		var callee = arguments.callee;
+		if (array.length) {
+			fn.call(scope,array[0],function () {
+				callee(array.slice(1),fn,scope,finished,finishedScope);
+			});
+		} else {
+			finished && finished.call(finishedScope);
+		}
+	};
+
 	// If addDefaultListener is not false, a default listener will be added that logs test results to console.log
 	var Runner = function (addDefaultListener) {
 		this.listeners = [];
@@ -80,7 +91,23 @@ this['git://github.com/oatkiller/testingjs.git'] = function (exportObj) {
 		if (!passed) {
 			throw new Error(message);
 		}
-	}
+	};
+
+	var Wait = function (cancel,time,message) {
+		if (this instanceof arguments.callee) {
+			Wait.instance = this;
+
+			this.cancel = cancel;
+			this.time = time !== undefined ? time : 1E3;
+			this.message = message !== undefined ? message : 'Wait timed out.';
+		} else {
+			return new arguments.callee(cancel,time,message);
+		}
+	};
+
+	var Resume = function () {
+		arguments.callee.callback && arguments.callee.callback();
+	};
 
 	var Test = function (assertionText,testFn) {
 		this.testFn = testFn;
@@ -89,8 +116,40 @@ this['git://github.com/oatkiller/testingjs.git'] = function (exportObj) {
 
 	Test.prototype = {
 		constructor : Test,
-		run : function (scope) {
-			this.testFn.call(scope);
+		run : function (scope,successCallback,failureCallback,completeCallback) {
+			try {
+				this.testFn.call(scope);
+				if (Wait.instance) {
+					var timeout = setTimeout(function () {
+						var message = Wait.instance.message;
+						delete Wait.instance;
+						Assert(false,message);
+					},Wait.instance.time);
+					Resume.callback = function () {
+						delete Wait.instance;
+						clearTimeout(timeout);
+						successCallback();
+						completeCallback();
+					};
+				} else {
+					successCallback();
+				}
+			} catch (e) {
+				if (Wait.instance) {
+					if (Wait.instance.cancel !== undefined) {
+						if (typeof Wait.instance.cancel === 'function') {
+							Wait.instance.cancel();
+						} else {
+							clearTimeout(Wait.instance.cancel);
+						}
+					}
+					clearTimeout(timeout);
+					delete Wait.instance;
+				}
+				failureCallback(e);
+			} finally {
+				!Wait.instance && completeCallback();
+			}
 		}
 	};
 
@@ -125,27 +184,25 @@ this['git://github.com/oatkiller/testingjs.git'] = function (exportObj) {
 		run : function () {
 			// Loop over all of the numeric indicies of this.tests
 
-			map(this.tests,function (test) {
+			asyncIterate(this.tests,function (test,callback) {
 				// Run the setup
 				this.setUp && this.setUp.call(this);
-				
-				// Call test in this scope
-				try {
-					// Run the test, passing this as a scope
-					test.run(this);
 
+				var self = this;
+
+				test.run(this,function () {
 					// Log the success
-					this.runner.log('success',test);
-				} catch (error) {
+					self.runner.log('success',test);
+				},function (e) {
 					// Log the failure
-					this.runner.log('failure',test,error);
-				} finally {
+					self.runner.log('failure',test,e);
+				},function () {
 					// Run the teardown
-					this.tearDown && this.tearDown.call(this);
-				}
-			},this);
-
-			this.runner.report();
+					self.tearDown && self.tearDown.call(self);
+					callback();
+				});
+				
+			},this,this.runner.report,this.runner);
 		}
 	};
 
@@ -155,11 +212,16 @@ this['git://github.com/oatkiller/testingjs.git'] = function (exportObj) {
 		exportObj.Suite = Suite;
 		exportObj.Runner = Runner;
 		exportObj.Assert = Assert;
+		exportObj.Wait = Wait;
+		exportObj.Resume = Resume;
 	} else {
 		// Otherwise, export these to the global namespace
 		this.Test = Test;
 		this.Suite = Suite;
 		this.Runner = Runner;
 		this.Assert = Assert;
+		this.Wait = Wait;
+		this.Resume = Resume;
 	}
 };
+
