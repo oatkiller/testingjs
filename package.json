@@ -1,0 +1,20 @@
+{
+  "author": "Robert Austin <robert@oatlab.com> (https://github.com/oatkiller)",
+  "name": "testing",
+  "description": "A light-weight testing framework inspired by YUI Test.",
+  "version": "0.1.0",
+  "homepage": "https://github.com/oatkiller/testingjs",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/oatkiller/testingjs.git"
+  },
+  "main": "testing",
+  "scripts": {
+    "test": "node tests.js"
+  },
+  "engines": {
+    "node": "v0.4.8"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

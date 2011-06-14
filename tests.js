@@ -1,5 +1,17 @@
+if (typeof module !== 'undefined') {
+	var Testing = require('./testing');
+} else {
+	var Testing = {};
+	this['git://github.com/oatkiller/testingjs.git'](Testing);
+}
+
+var Runner = Testing.Runner;
+var Test = Testing.Test;
+var Assert = Testing.Assert;
+var Suite = Testing.Suite;
+var Resume = Testing.Resume;
+
 var basicTest = function () {
-	this['git://github.com/oatkiller/testingjs.git']();
 	var runner = new Runner();
 	var suite = new Suite({
 		runner : runner,
@@ -13,24 +25,28 @@ var basicTest = function () {
 	});
 	suite.run();
 };
+basicTest();
 
-var testExport = function () {
-	var testing = {};
-	this['git://github.com/oatkiller/testingjs.git'](testing);
+if (typeof module === 'undefined') {
+	var testExport = function () {
+		var testing = {};
+		this['git://github.com/oatkiller/testingjs.git'](testing);
 
-	var runner = new testing.Runner();
-	var suite = new testing.Suite({
-		runner : runner,
-		'1+1 should not equal 3' : function () {
-			testing.Assert(1+1!==3,'they did equal 3');
-		},
-		// this should fail
-		'1+1 should equal 3' : function () {
-			testing.Assert(1+1===3,'they didnt equal 3');
-		}
-	});
-	suite.run();
-};
+		var runner = new testing.Runner();
+		var suite = new testing.Suite({
+			runner : runner,
+			'1+1 should not equal 3' : function () {
+				testing.Assert(1+1!==3,'they did equal 3');
+			},
+			// this should fail
+			'1+1 should equal 3' : function () {
+				testing.Assert(1+1===3,'they didnt equal 3');
+			}
+		});
+		suite.run();
+	};
+	testExport();
+}
 
 var testSetupAndTearDown = function () {
 	// In this example, I'll test the methods of a class
@@ -44,8 +60,6 @@ var testSetupAndTearDown = function () {
 	Widget.prototype.hasChildren = function () {
 		return this.children.length > 0;
 	};
-
-	this['git://github.com/oatkiller/testingjs.git']();
 
 	var runner = new Runner();
 
@@ -80,12 +94,9 @@ var testSetupAndTearDown = function () {
 	});
 	suite.run();
 };
-
-//testSetupAndTearDown();
+testSetupAndTearDown();
 
 var testWait = function () {
-	this['git://github.com/oatkiller/testingjs.git']();
-
 	var runner = new Runner();
 
 	var suite = new Suite({
@@ -99,5 +110,4 @@ var testWait = function () {
 	});
 	suite.run();
 };
-
 testWait();
