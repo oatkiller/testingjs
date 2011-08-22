@@ -94,7 +94,7 @@
 				if (Wait.instance) {
 					Assert.AsyncFail(error);
 				} else {
-					throw new error;
+					throw error;
 				}
 			}
 		};
