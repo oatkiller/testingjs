@@ -10,7 +10,9 @@ var Test = Testing.Test;
 var Assert = Testing.Assert;
 var Suite = Testing.Suite;
 var Resume = Testing.Resume;
+var Wait = Testing.Wait;
 
+/*
 var basicTest = function () {
 	var runner = new Runner();
 	var suite = new Suite({
@@ -95,6 +97,7 @@ var testSetupAndTearDown = function () {
 	suite.run();
 };
 testSetupAndTearDown();
+*/
 
 var testWait = function () {
 	var runner = new Runner();
@@ -102,12 +105,60 @@ var testWait = function () {
 	var suite = new Suite({
 		runner : runner,
 
-		'wait should assert false after default time if nothing happens' : function () {
+		'wait should not fail if resume is called' : function () {
 			Wait(setTimeout(function () {
 				Resume();
 			},100),110);
+		},
+
+		'wait should assert false after default time if nothing happens' : function () {
+			Wait(setTimeout(function () {
+				Resume();
+			},100),90);
+		},
+
+		'wait should not fail if resume is called try again' : function () {
+			Wait(setTimeout(function () {
+				Resume();
+			},100),110);
+		},
+
+		'asserting false works too' : function () {
+			Wait(setTimeout(function () {
+				Assert(false,'asserted false');
+			},100),110);
+		},
+
+		'wait should not fail if resume is called try again again' : function () {
+			Wait(setTimeout(function () {
+				Resume();
+			},100),110);
+		},
+
+		'wait should fail if resume is not called in time try again' : function () {
+			Wait(setTimeout(function () {
+				Resume();
+			},100),90);
 		}
 	});
 	suite.run();
 };
 testWait();
+
+var testHelpers = function () {
+	var runner = new Runner();
+
+	var suite = new Suite({
+		runner : runner,
+
+		thisTotesDidnt : function () {
+			Assert(false,'it ran, bro');
+		},
+
+		'this ran' : function () {
+			Assert(1 === 1,'yeaaa!');
+		}
+	});
+	suite.run();
+};
+//testHelpers();

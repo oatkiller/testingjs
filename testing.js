@@ -90,8 +90,18 @@
 
 		var Assert = function (passed,message) {
 			if (!passed) {
-				throw new Error(message);
+				var error = new Error(message);
+				if (Wait.instance) {
+					Assert.AsyncFail(error);
+				} else {
+					throw new error;
+				}
 			}
+		};
+
+		Assert.AsyncFail = function (error) {
+			Wait.cancel();
+			arguments.callee.callback && arguments.callee.callback(error);
 		};
 
 		var Wait = function (cancel,time,message) {
@@ -105,8 +115,25 @@
 				return new arguments.callee(cancel,time,message);
 			}
 		};
+		Wait.startTimeout = function () {
+			// set a timeout
+			this.timeout = setTimeout(function () {
+				Assert.AsyncFail();
+			},this.instance.time);
+		};
+		Wait.cancel = function () {
+			clearTimeout(this.timeout);
+			if (this.instance.cancel !== undefined) {
+				if (typeof this.instance.cancel === 'function') {
+					this.instance.cancel();
+				} else {
+					clearTimeout(this.instance.cancel);
+				}
+			}
+		};
 
 		var Resume = function () {
+			Wait.cancel();
 			arguments.callee.callback && arguments.callee.callback();
 		};
 
@@ -119,34 +146,33 @@
 			constructor : Test,
 			run : function (scope,successCallback,failureCallback,completeCallback) {
 				try {
+					delete Wait.instance;
+
+					// run the test fn
 					this.testFn.call(scope);
+
+					// if there is a wait
 					if (Wait.instance) {
-						var timeout = setTimeout(function () {
-							var message = Wait.instance.message;
-							delete Wait.instance;
-							Assert(false,message);
-						},Wait.instance.time);
+						var instance = Wait.instance;
+
+						Assert.AsyncFail.callback = function (error) {
+							failureCallback(error);
+							completeCallback();
+						};
+
+						Wait.startTimeout();
+
+						// set a call back for resume
 						Resume.callback = function () {
-							delete Wait.instance;
-							clearTimeout(timeout);
+							// run sucess
 							successCallback();
 							completeCallback();
 						};
 					} else {
+						// there is no wait, so run the success callback
 						successCallback();
 					}
 				} catch (e) {
-					if (Wait.instance) {
-						if (Wait.instance.cancel !== undefined) {
-							if (typeof Wait.instance.cancel === 'function') {
-								Wait.instance.cancel();
-							} else {
-								clearTimeout(Wait.instance.cancel);
-							}
-						}
-						clearTimeout(timeout);
-						delete Wait.instance;
-					}
 					failureCallback(e);
 				} finally {
 					!Wait.instance && completeCallback();
@@ -178,7 +204,7 @@
 			addTests : function (config) {
 				map(config,function (property,propertyName) {
 					// create and add each Test
-					this.tests.push(new Test(propertyName,config[propertyName]));
+					/\s/.test(propertyName) && this.tests.push(new Test(propertyName,config[propertyName]));
 				},this);
 			},
 			// A method that runs all a Suite's tests
@@ -236,4 +262,3 @@
 	}
 
 })();
-
