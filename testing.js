@@ -123,7 +123,7 @@
 		};
 		Wait.cancel = function () {
 			clearTimeout(this.timeout);
-			if (this.instance.cancel !== undefined) {
+			if (this.instance && this.instance.cancel !== undefined) {
 				if (typeof this.instance.cancel === 'function') {
 					this.instance.cancel();
 				} else {

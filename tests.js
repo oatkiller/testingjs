@@ -12,7 +12,6 @@ var Suite = Testing.Suite;
 var Resume = Testing.Resume;
 var Wait = Testing.Wait;
 
-/*
 var basicTest = function () {
 	var runner = new Runner();
 	var suite = new Suite({
@@ -97,7 +96,6 @@ var testSetupAndTearDown = function () {
 	suite.run();
 };
 testSetupAndTearDown();
-*/
 
 var testWait = function () {
 	var runner = new Runner();
@@ -139,6 +137,12 @@ var testWait = function () {
 			Wait(setTimeout(function () {
 				Resume();
 			},100),90);
+		},
+
+		'wait will cancel if resume is called' : function () {
+			Wait(setTimeout(function () {
+				Resume();
+			},10),10000000);
 		}
 	});
 	suite.run();
@@ -161,4 +165,4 @@ var testHelpers = function () {
 	});
 	suite.run();
 };
-//testHelpers();
+testHelpers();
