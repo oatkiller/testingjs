@@ -48,7 +48,7 @@
 			// Add the default listener, unless explicitly told not to
 			addDefaultListener !== false && this.addListener(function (messageType,payload) {
 				if (messageType !== 'report') {
-					console.log(messageType,':',payload.assertionText,payload.error ? payload.error : '');
+					console.log(messageType,':',payload.assertionText,payload.error && payload.error.message ? ': "' + payload.error.message + '" ' : '',payload.error ? payload.error : '');
 				} else {
 					console.log(messageType,': success: ',payload.successCount,' failure: ',payload.failureCount);
 				}
@@ -118,7 +118,7 @@
 		Wait.startTimeout = function () {
 			// set a timeout
 			this.timeout = setTimeout(function () {
-				Assert.AsyncFail();
+				Assert.AsyncFail(new Error('timeout'));
 			},this.instance.time);
 		};
 		Wait.cancel = function () {

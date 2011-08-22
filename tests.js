@@ -143,6 +143,13 @@ var testWait = function () {
 			Wait(setTimeout(function () {
 				Resume();
 			},10),10000000);
+		},
+
+		'timeouts throw a timeout error' : function () {
+			Wait(setTimeout(function () {
+				// never gets called
+				Resume();
+			},10000000),1);
 		}
 	});
 	suite.run();
