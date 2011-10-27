@@ -8,6 +8,7 @@ if (typeof module !== 'undefined') {
 var Runner = Testing.Runner;
 var Test = Testing.Test;
 var Assert = Testing.Assert;
+var Equals = Testing.Equals;
 var Suite = Testing.Suite;
 var Resume = Testing.Resume;
 var Wait = Testing.Wait;
@@ -26,7 +27,7 @@ var basicTest = function () {
 	});
 	suite.run();
 };
-basicTest();
+//basicTest();
 
 if (typeof module === 'undefined') {
 	var testExport = function () {
@@ -46,7 +47,7 @@ if (typeof module === 'undefined') {
 		});
 		suite.run();
 	};
-	testExport();
+	//testExport();
 }
 
 var testSetupAndTearDown = function () {
@@ -95,7 +96,7 @@ var testSetupAndTearDown = function () {
 	});
 	suite.run();
 };
-testSetupAndTearDown();
+//testSetupAndTearDown();
 
 var testWait = function () {
 	var runner = new Runner();
@@ -154,7 +155,7 @@ var testWait = function () {
 	});
 	suite.run();
 };
-testWait();
+//testWait();
 
 var testHelpers = function () {
 	var runner = new Runner();
@@ -172,4 +173,28 @@ var testHelpers = function () {
 	});
 	suite.run();
 };
-testHelpers();
+//testHelpers();
+
+var testEquals = function () {
+	var runner = new Runner();
+
+	var suite = new Suite({
+		runner : runner,
+
+		'test that equals lets tests pass' : function () {
+			Equals(1,1,'damn test failed');
+			Equals('a','a','damn test failed');
+			var myObj = {};
+			Equals(myObj,myObj,'damn test failed');
+		},
+		'test that equals fails tests' : function () {
+			Equals(1,2,'damn test failed');
+			Equals('1',1,'damn test failed');
+		},
+		'test that equals works without a message' : function () {
+			Equals(1,2);
+		}
+	});
+	suite.run();
+};
+testEquals();

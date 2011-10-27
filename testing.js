@@ -88,6 +88,15 @@
 			}
 		};
 
+		var Equals = function (actual,expected,optionalMessage) {
+			if (actual === expected && arguments.length > 1) {
+				Assert(true);
+			} else {
+				var message = actual + ' was not ' + expected + ' (expected)';
+				Assert(false,optionalMessage ? optionalMessage + ': ' + message : message);
+			}
+		};
+
 		var Assert = function (passed,message) {
 			if (!passed) {
 				var error = new Error(message);
@@ -239,6 +248,7 @@
 			exportObj.Suite = Suite;
 			exportObj.Runner = Runner;
 			exportObj.Assert = Assert;
+			exportObj.Equals = Equals;
 			exportObj.Wait = Wait;
 			exportObj.Resume = Resume;
 		} else {
@@ -247,6 +257,7 @@
 			this.Suite = Suite;
 			this.Runner = Runner;
 			this.Assert = Assert;
+			this.Equals = Equals;
 			this.Wait = Wait;
 			this.Resume = Resume;
 		}
