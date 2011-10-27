@@ -247,6 +247,44 @@ pre.. // This should fail
 }
 // Produces an error like: failure : 1+1 should equal 3 : "I am not good at math. : 2 was not 3 (expected)" 
 
+
+h2. Wait & Resume
+
+The Wait and Resume functions are used to test asynchronous code. Call Wait with a timeout handler and a wait duration. When your asynchronous code completes, call Resume. If the wait duration expires before Resume is called, an error will occur and the timeout handler will be called.
+
+Equals
+|Param|Type|Optional?|Desc.|
+|timeoutHandler|Function or Number|Required|A function to call if the wait duration expires. Optionally pass the retuned value from setTimeout|
+|waitDuration|Number|Required|Milliseconds before timing out|
+
+Resume
+|Param|Type|Optional?|Desc.|
+	None
+
+h3. Usage Example
+
+pre.. // Wait one second for an ajax call to complete before asserting its value
+
+// Note: The ajax methods here are made-up.
+
+var ajaxRequest = new Request('test.html');
+
+Wait(function () {
+	// one second passed without the ajax call completing. An error will occur. Clean up the ajax request by cancelling it.
+	ajaxRequest.cancel();
+},1000);
+
+// start the ajaxRequest
+ajaxRequest.happen({
+	// the call completed
+	success : function (response) {
+		Equals(response.code,301);
+
+		// the ajax request is done. Continue running the test suite.
+		Resume();
+	}
+});
+
 h2. Test
 
 The Test class can be created directly, or by passing a test config to your Suite
